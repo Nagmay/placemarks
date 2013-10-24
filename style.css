@@ -1,0 +1,33 @@
+/**
+ * @package Placemarks
+ * @author Gabriel Nagmay <gabriel.nagmay.com>
+ * @link http://wordpress.org/extend/plugins/placemarks/
+ */
+ 
+ 
+/* Custom post icons based on http://randyjensenonline.com/thoughts/wordpress-custom-post-type-fugue-icons  -  include attribution to Yusuke Kamiyamane*/
+
+#icon-edit.icon32-posts-placemark{
+        background: url("images/marker-32.png") no-repeat 0 -5px !important;
+		}
+#menu-posts-placemark .wp-menu-image{
+        background: url("images/marker.png") no-repeat 6px -17px !important;
+        }
+#menu-posts-placemark:hover .wp-menu-image, #menu-posts-placemark.wp-has-current-submenu .wp-menu-image{
+        background-position:6px 7px !important;
+        }
+		
+/* icons */
+#placemark-marker-image{
+		display:inline-block;
+		width:32px;
+		height:37px;
+		overflow:visible;
+		margin:-12px 5px;
+		}
+		
+		
+/* on display */
+.placemarks dl.placemarks-alt{
+	margin-top:10px;
+}
