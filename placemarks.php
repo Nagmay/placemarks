@@ -3,7 +3,7 @@
 	Plugin Name: Placemarks
 	Plugin URI: http://wordpress.org/extend/plugins/placemarks/
 	Description: Allow authors to easily manage placemarks and embed custom maps.
-	Version: 1.0.0
+	Version: 1.0.1
 	Author: Gabriel Nagmay
 	Author URI: http://gabriel@nagmay.com
 	License: GPL2
@@ -74,9 +74,9 @@ function create_placemarks_post_type() {
 	$args = array(
 		'labels' => $labels,
 		'public' => true,
-		'publicly_queryable' => true,
-		'query_var' => true,
-		'rewrite' => true,
+		'publicly_queryable' => false, 	// individual placemarks would show publicly 
+		'query_var' => false,			// ditto
+		'rewrite' => false,				// ditto
 		'capability_type' => 'post',
 		'hierarchical' => false,
 		'supports' => array(
@@ -94,15 +94,32 @@ function create_placemarks_post_type() {
 /* ==================================================================
  * Register style sheets and scripts for admin area
  * ================================================================== */
-add_action( 'admin_init', 'placemarks_scripts_and_styles' );
-function placemarks_scripts_and_styles() {
+add_action( 'admin_enqueue_scripts', 'placemarks_scripts_and_styles', 10, 1 ); // updated from admin_init, need hook
+function placemarks_scripts_and_styles($hook) {
+	global $post;
 	wp_register_style( 'placemarks_style', plugins_url( 'placemarks/style.css' ) );
-	wp_enqueue_style( 'placemarks_style' );
+	wp_enqueue_style( 'placemarks_style' ); 									// needed for icon on all admin pages
 	wp_register_script('placemarks_google_maps_v3', 'http'. ( is_ssl() ? 's' : '' ) .'://maps.google.com/maps/api/js?sensor=true');
-	wp_enqueue_script( 'placemarks_google_maps_v3' );
 	wp_register_script('placemarks_scripts', plugins_url( 'placemarks/scripts.js'),array(), false, true );
-	wp_enqueue_script( 'placemarks_scripts' );
+	
+	if ( $hook == 'post-new.php' || $hook == 'post.php' || $hook == 'edit.php' ) { // only enqueue js on placemark admin pages //echo $hook;
+        if ( 'placemark' === $post->post_type ) { 
+			wp_enqueue_script( 'placemarks_google_maps_v3' );
+			wp_enqueue_script( 'placemarks_scripts' );
+        }
+    }
 }
+
+
+function add_admin_scripts( $hook ) {
+
+    global $post;
+
+   
+}
+add_action( 'admin_enqueue_scripts', 'add_admin_scripts', 10, 1 );
+
+
 
 
 /* ==================================================================
@@ -440,6 +457,9 @@ function placemarks_non_admin_scripts_and_styles() {
 // [placemarks types="type name" lat=# lng =# zoom=# width="" height="" alt=tru/false]  ToDo: locations="location slug" 
 function placemarks_shortcode( $atts ) {
 	global $post,$wpdb,$placemarks_types_json,$placemarks_locations_json;
+	$temp_post = $post;
+	$can_edit = current_user_can('edit_posts') ? 1:0; // can the user edit placemarks?
+	
 	extract( shortcode_atts( array(
 		'types' 	=> '',
 		//'locations'	=> '',
@@ -490,7 +510,7 @@ function placemarks_shortcode( $atts ) {
 				
 			  $z = 100;
 		      while ($placmarks_query->have_posts()) : $placmarks_query->the_post(); 
-			
+			  
 		  		// what we know
 				$p_id = 		$post->ID;
 				$p_lat = 		attribute_escape( get_post_meta($p_id,"placemarks-lat",true));
@@ -501,9 +521,16 @@ function placemarks_shortcode( $atts ) {
 				$p_bubble = 	attribute_escape( get_post_meta($p_id,"placemarks-bubble",true));
 				$p_type = 		attribute_escape( get_post_meta($p_id,"placemarks-type",true));
 				$p_link = 		attribute_escape( get_post_meta($p_id,"placemarks-link",true));
-								 
+				
+			
+				
 				// which title to use
 				$p_title = $p_title!="" ? $p_title : $p_type; 
+				
+				// edit link?
+				if($can_edit){
+					$p_title .= ' | <a href="'.admin_url()."post.php?post=$p_id&action=edit".'">Edit</a>'; 
+				}
 				
 				// icon
 				$p_icon = "";
@@ -517,7 +544,7 @@ function placemarks_shortcode( $atts ) {
 				// Data for the markers [z-index, lat, lng, title, content, icon scr, link href ] 
 				$out .= "\n\t\t [$z, $p_lat, $p_lng, '$p_title', '$p_bubble', '$p_icon', '$p_link'],";
 				if($alt){	
-					$alt_text .= "<dt><img src=\"$p_icon\"/> $p_title:<dt><dd><em>Location description:</em> $p_location</dd><dd>$p_bubble";
+					$alt_text .= "<dt><img src=\"$p_icon\"/> $p_title<dt><dd><em>Location description:</em> $p_location</dd><dd>$p_bubble";
 					if($p_link){
 						$alt_text .= "<p><a href=\"$p_link\">Learn more ...</a></p>";
 					}
@@ -525,6 +552,8 @@ function placemarks_shortcode( $atts ) {
 				}
 				$z++;
 		      endwhile;
+			  			  
+			  $post = $temp_post;  // back to your regularly scheduled program
 ?>
 
     <script type="text/javascript">

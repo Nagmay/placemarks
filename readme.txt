@@ -3,8 +3,8 @@ Contributors: gabrielmcgovern
 Donate link: http://www.dreamhost.com/donate.cgi?id=17157
 Tags: placemarks, placemark, map, maps, places, mark, marker, google maps
 Requires at least: 3.0
-Tested up to: 3.6.1
-Stable tag: 1.0.0
+Tested up to: 3.7.1
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -110,10 +110,18 @@ Each location can also include `locations`. This can be used to create hierarchi
 
 == Changelog ==
 
+= 1.0.1 =
+* Bug fix: Only enqueue js on placemark admin pages
+* Bug fix: Fix error on pages with comments
+* Feature: Add edit link to each placemark on map
+
 = 1.0.0 =
 * First version to be released. 
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+* Bug fixes. New edit links on map.
 
 = 1.0.0 =
 Seems stable enough, but only has basic features. 

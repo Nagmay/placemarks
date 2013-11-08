@@ -2,8 +2,9 @@ Need to do:
 - Setting: Turn on/off sensor=true when map is embedded
 - All placemarks: Show location names instead of slugs (link to just those like a real taxonomy)
 - Settings: Allow option to set default gps lat lng and zoom for admin map
-- Embedded map: Add "edit" link to markers displayed on map when user is logged in for quick editing!
 
 Done:
+- Embedded map: Add "edit" link to markers displayed on map when user is logged in for quick editing!
+- Bugfix: Only enqueue js on placemark admin pages
 - Settings: Allow locations in locations (via JSON)
 - Shortcode: set defaults for gps and zoom
